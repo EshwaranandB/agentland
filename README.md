@@ -45,6 +45,49 @@ The Planner breaks down the mission. The Researcher finds an approach. The Build
 
 ---
 
+## ✦ Project Showcase & Demo
+
+### 🎥 Demo Videos
+<table>
+  <tr>
+    <td align="center" width="50%"><b>Cinematic Workflow Walkthrough</b></td>
+    <td align="center" width="50%"><b>Demo Walkthrough Video</b></td>
+  </tr>
+  <tr>
+    <td>
+      <video src="agent playground/presentation_assets/Create_a_cinematic_second_p.mp4" controls width="100%"></video>
+    </td>
+    <td>
+      <video src="agent playground/presentation_assets/make_a_demo_video_Create_a_cin.mp4" controls width="100%"></video>
+    </td>
+  </tr>
+</table>
+
+### 🖼️ Screenshots & Diagrams
+
+<div align="center">
+  <img src="agent playground/presentation_assets/gen_agents_diagram_3.jpg" alt="AgentLand Diagram" width="100%" />
+  <p><i>AgentLand system architecture and visualization flow</i></p>
+</div>
+
+<br />
+
+<table>
+  <tr>
+    <td width="50%"><img src="agent playground/presentation_assets/ChatGPT Image Jul 18, 2026, 06_01_03 PM.png" width="100%" /></td>
+    <td width="50%"><img src="agent playground/presentation_assets/ChatGPT Image Jul 18, 2026, 06_01_14 PM.png" width="100%" /></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="agent playground/presentation_assets/ChatGPT Image Jul 18, 2026, 06_01_18 PM.png" width="100%" /></td>
+    <td width="50%"><img src="agent playground/presentation_assets/ChatGPT Image Jul 18, 2026, 06_01_24 PM.png" width="100%" /></td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center"><img src="agent playground/presentation_assets/ChatGPT Image Jul 18, 2026, 05_19_54 PM.png" width="100%" /></td>
+  </tr>
+</table>
+
+---
+
 ## ✦ The idea in one sentence
 
 ```text
