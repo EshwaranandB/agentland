@@ -1,0 +1,5 @@
+{
+  "name": "agentland-whiteboard-demo",
+  "private": true,
+  "scripts": { "test": "node --test tests/room-isolation.test.js" }
+}
