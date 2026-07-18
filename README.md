@@ -55,10 +55,10 @@ The Planner breaks down the mission. The Researcher finds an approach. The Build
   </tr>
   <tr>
     <td>
-      <video src="agent playground/presentation_assets/Create_a_cinematic_second_p.mp4" controls width="100%"></video>
+      <video src="agent%20playground/presentation_assets/Create_a_cinematic_second_p.mp4" controls width="100%"></video>
     </td>
     <td>
-      <video src="agent playground/presentation_assets/make_a_demo_video_Create_a_cin.mp4" controls width="100%"></video>
+      <video src="agent%20playground/presentation_assets/make_a_demo_video_Create_a_cin.mp4" controls width="100%"></video>
     </td>
   </tr>
 </table>
@@ -66,7 +66,7 @@ The Planner breaks down the mission. The Researcher finds an approach. The Build
 ### 🖼️ Screenshots & Diagrams
 
 <div align="center">
-  <img src="agent playground/presentation_assets/gen_agents_diagram_3.jpg" alt="AgentLand Diagram" width="100%" />
+  <img src="agent%20playground/presentation_assets/gen_agents_diagram_3.jpg" alt="AgentLand Diagram" width="100%" />
   <p><i>AgentLand system architecture and visualization flow</i></p>
 </div>
 
@@ -74,15 +74,15 @@ The Planner breaks down the mission. The Researcher finds an approach. The Build
 
 <table>
   <tr>
-    <td width="50%"><img src="agent playground/presentation_assets/ChatGPT Image Jul 18, 2026, 06_01_03 PM.png" width="100%" /></td>
-    <td width="50%"><img src="agent playground/presentation_assets/ChatGPT Image Jul 18, 2026, 06_01_14 PM.png" width="100%" /></td>
+    <td width="50%"><img src="agent%20playground/presentation_assets/ChatGPT%20Image%20Jul%2018,%202026,%2006_01_03%20PM.png" width="100%" /></td>
+    <td width="50%"><img src="agent%20playground/presentation_assets/ChatGPT%20Image%20Jul%2018,%202026,%2006_01_14%20PM.png" width="100%" /></td>
   </tr>
   <tr>
-    <td width="50%"><img src="agent playground/presentation_assets/ChatGPT Image Jul 18, 2026, 06_01_18 PM.png" width="100%" /></td>
-    <td width="50%"><img src="agent playground/presentation_assets/ChatGPT Image Jul 18, 2026, 06_01_24 PM.png" width="100%" /></td>
+    <td width="50%"><img src="agent%20playground/presentation_assets/ChatGPT%20Image%20Jul%2018,%202026,%2006_01_18%20PM.png" width="100%" /></td>
+    <td width="50%"><img src="agent%20playground/presentation_assets/ChatGPT%20Image%20Jul%2018,%202026,%2006_01_24%20PM.png" width="100%" /></td>
   </tr>
   <tr>
-    <td colspan="2" align="center"><img src="agent playground/presentation_assets/ChatGPT Image Jul 18, 2026, 05_19_54 PM.png" width="100%" /></td>
+    <td colspan="2" align="center"><img src="agent%20playground/presentation_assets/ChatGPT%20Image%20Jul%2018,%202026,%2005_19_54%20PM.png" width="100%" /></td>
   </tr>
 </table>
 
