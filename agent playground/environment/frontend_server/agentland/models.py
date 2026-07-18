@@ -91,6 +91,7 @@ class DispatchRequest(models.Model):
     platform_error = models.TextField(blank=True)
     codex_started = models.BooleanField(null=True, blank=True)
     runner_identity = models.CharField(max_length=32)
+    model = models.CharField(max_length=128, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
 

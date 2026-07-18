@@ -73,7 +73,7 @@ def serialize_session(session):
         "tasks": [{"id": str(t.id), "title": t.title, "status": t.status, "artifact_reference": t.artifact_reference} for t in session.tasks.all()],
         "artifacts": [{"id": str(a.id), "type": a.artifact_type, "path": a.relative_path, "sha256": a.sha256} for a in session.artifacts.all()],
         "events": [{"sequence": e.sequence, "type": e.event_type, "actor_id": e.actor_id, "task_id": str(e.task_id) if e.task_id else None, "summary": e.public_summary, "payload": e.structured_payload} for e in session.events.all()],
-        "dispatches": [{"id": str(d.id), "status": d.status, "runner_identity": d.runner_identity, "first_event_sequence": d.first_event_sequence, "last_event_sequence": d.last_event_sequence, "error_category": d.error_category, "exit_code": d.exit_code, "platform_error": d.platform_error, "codex_started": d.codex_started} for d in session.dispatches.all()],
+        "dispatches": [{"id": str(d.id), "status": d.status, "runner_identity": d.runner_identity, "model": d.model, "first_event_sequence": d.first_event_sequence, "last_event_sequence": d.last_event_sequence, "error_category": d.error_category, "exit_code": d.exit_code, "platform_error": d.platform_error, "codex_started": d.codex_started} for d in session.dispatches.all()],
     }
 
 

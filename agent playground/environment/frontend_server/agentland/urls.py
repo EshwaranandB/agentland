@@ -4,6 +4,8 @@ from . import views
 
 urlpatterns = [
     path("", views.shell),
+    path("demo/", views.demo),
+    path("settings/openai/", views.openai_settings),
     path("sessions/", views.create_session),
     path("sessions/<uuid:session_id>/", views.workspace),
     path("reset-baseline/", views.reset_baseline),

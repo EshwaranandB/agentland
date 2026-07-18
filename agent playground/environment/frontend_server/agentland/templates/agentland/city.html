@@ -115,5 +115,9 @@
     setInterval(async()=>{try{const wasLive=index===frames.length-1,response=await fetch(`/agentland/sessions/${frames[0].session.id}/city-state/`);if(!response.ok)return;const data=await response.json();if(data.frames.length>frames.length){frames=data.frames;if(wasLive){index=frames.length-1;render()}else $('notice').textContent=`${frames.length-index-1} new confirmed events`;}}catch(_error){}},750);
   })();
   </script>
+<script>
+// Demo Mode is presentation-only: begin the existing Phaser event playback automatically.
+if (location.pathname === '/agentland/demo/') setTimeout(() => document.getElementById('play').click(), 1400);
+</script>
 </body>
 </html>

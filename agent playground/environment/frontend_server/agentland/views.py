@@ -15,6 +15,8 @@ from .city import city_page
 from .shell import demo_shell
 from .projection import project_city_frames
 from .services import dispatch_builder, restore_codex_baseline, run_fixed_test, serialize_session, workspace_root
+from .agent_runtime.credentials import credential_store, local_bootstrap_key
+from .agent_runtime.service import DEFAULT_MODEL, MODEL_ALLOWLIST, run_mission, valid_model
 
 
 def request_body(request):
@@ -24,9 +26,63 @@ def request_body(request):
         raise ValueError("Request body must be JSON")
 
 
+def _browser_session_key(request):
+    if not request.session.session_key:
+        request.session.save()
+    return request.session.session_key
+
+
+@require_http_methods(["GET", "POST", "DELETE"])
+def openai_settings(request):
+    key = _browser_session_key(request)
+    if request.method == "DELETE":
+        credential_store.clear_openai_key(key)
+        request.session.pop("agentland_openai_model", None)
+        return JsonResponse({"configured": False, "model": DEFAULT_MODEL})
+    if request.method == "POST":
+        try:
+            body = request_body(request)
+        except ValueError as error:
+            return JsonResponse({"error": str(error)}, status=400)
+        model, api_key = str(body.get("model", DEFAULT_MODEL)), str(body.get("api_key", "")).strip()
+        if not valid_model(model):
+            return JsonResponse({"error": "Unsupported model"}, status=400)
+        if not api_key or len(api_key) < 20:
+            return JsonResponse({"error": "A valid API key is required"}, status=400)
+        credential_store.set_openai_key(key, api_key)
+        request.session["agentland_openai_model"] = model
+    if not credential_store.has_openai_key(key):
+        bootstrap = local_bootstrap_key()
+        if bootstrap:
+            credential_store.set_openai_key(key, bootstrap)
+    return JsonResponse({"configured": credential_store.has_openai_key(key), "model": request.session.get("agentland_openai_model", DEFAULT_MODEL), "models": list(MODEL_ALLOWLIST)})
+
+
 @require_GET
 def shell(request):
     return render(request, "agentland/shell.html")
+
+
+@require_GET
+def demo(request):
+    """Play the deterministic demo directly on the existing Phaser Smallville map."""
+    def frame(sequence, builder_location, tester_location, factory, testing, summary):
+        workers = [
+            {"id": "demo-orchestrator", "role": "orchestrator", "status": "working", "location": "town_hall", "summary": "Coordinating the visible demo.", "task": "demo"},
+            {"id": "demo-builder", "role": "builder", "status": "working", "location": builder_location, "summary": summary, "task": "demo"},
+            {"id": "demo-tester", "role": "tester", "status": "working" if tester_location == "testing_facility" else "idle", "location": tester_location, "summary": "Waiting for verification." if tester_location == "town_hall" else "Running fixed verification.", "task": "demo"},
+        ]
+        return {"session": {"id": "demo", "mission": "Build a collaborative whiteboard with isolated rooms and deploy it.", "status": "started"}, "hud": {"execution_mode": "DEMO MODE · SIMULATION", "runner_identity": "demo", "last_sequence": sequence}, "buildings": {"town_hall": "active", "code_factory": factory, "testing_facility": testing, "deployment_tower": "active" if sequence > 5 else "idle"}, "workers": workers, "tasks": [], "evidence": {"files": [], "tool": None, "test": None, "artifact": None, "blocker": None, "usage": []}, "activity": [{"sequence": sequence, "type": "demo.stage", "summary": summary, "actor": "demo", "task_id": "demo", "payload": {}}]}
+    frames = [
+        frame(1, "town_hall", "town_hall", "idle", "idle", "Planner received the mission."),
+        frame(2, "code_factory", "town_hall", "active", "idle", "Builder is walking to Code Factory."),
+        frame(3, "code_factory", "town_hall", "active", "idle", "Builder is repairing room isolation."),
+        frame(4, "code_factory", "testing_facility", "progress", "active", "Tester is walking to Testing Facility."),
+        frame(5, "code_factory", "testing_facility", "complete", "active", "Fixed verification is running."),
+        frame(6, "deployment_tower", "testing_facility", "complete", "passed", "Verification passed; artifact is deploying."),
+        frame(7, "deployment_tower", "testing_facility", "complete", "passed", "Demo workflow completed."),
+    ]
+    return render(request, "agentland/city.html", {"frames_json": json.dumps(frames).replace("</", "<\\/")})
 
 
 @require_GET
@@ -50,7 +106,7 @@ def create_session(request):
     with transaction.atomic():
         session = ProjectSession.objects.create(mission=mission, status="started")
         append_event(session, "session.created", "Created AgentLand session.", actor_id="orchestrator")
-        for role in ("orchestrator", "builder", "tester"):
+        for role in ("orchestrator", "researcher", "builder", "tester"):
             Worker.objects.create(session=session, role=role)
             append_event(session, "worker.created", f"Created {role.title()} worker.", actor_id=role, payload={"role": role})
         append_event(session, "session.started", "Started AgentLand session.", actor_id="orchestrator")
@@ -67,7 +123,23 @@ def dispatch_builder_view(request, session_id):
         return JsonResponse({"error": "session not found"}, status=404)
     try:
         runner = request_body(request).get("runner_identity", "deterministic")
-        dispatch, claimed = dispatch_builder(session, key, runner)
+        if runner == "openai_api":
+            api_key = credential_store.get_openai_key(_browser_session_key(request))
+            model = request.session.get("agentland_openai_model", DEFAULT_MODEL)
+            if not api_key:
+                return JsonResponse({"error": "Configure an OpenAI API key in Settings first."}, status=400)
+            api_result = run_mission(session_id=str(session.id), api_key=api_key, model=model, mission=session.mission)
+            if not api_result.get("ok"):
+                append_event(session, "tool.failed", "OpenAI mission planner could not start.", actor_id="orchestrator", payload={"runner_identity": "openai_api", "provider": "openai", "model": model, "error_category": api_result.get("error_category")})
+                return JsonResponse({"error": api_result.get("error_category", "api_unavailable"), "fallback": "deterministic"}, status=502)
+            orchestrator = session.workers.get(role="orchestrator")
+            orchestrator.public_summary = api_result["public_summary"]
+            orchestrator.save(update_fields=["public_summary", "updated_at"])
+            append_event(session, "tool.completed", "OpenAI Orchestrator returned a bounded public plan.", actor_id="orchestrator", payload={"runner_identity": "openai_api", "provider": "openai", "model": model, "public_summary": api_result["public_summary"], "usage": api_result.get("usage", {})})
+        dispatch, claimed = dispatch_builder(session, key, "deterministic" if runner == "openai_api" else runner)
+        if runner == "openai_api":
+            dispatch.runner_identity, dispatch.model = "openai_api", request.session.get("agentland_openai_model", DEFAULT_MODEL)
+            dispatch.save(update_fields=["runner_identity", "model"])
     except ValueError as error:
         return JsonResponse({"error": str(error)}, status=400)
     if not claimed and dispatch.status == "running":
