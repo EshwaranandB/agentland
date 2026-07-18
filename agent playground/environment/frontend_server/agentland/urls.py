@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     path("", views.shell),
     path("demo/", views.demo),
+    path("showcase-art/<str:screen>/", views.showcase_art),
     path("settings/openai/", views.openai_settings),
     path("sessions/", views.create_session),
     path("sessions/<uuid:session_id>/", views.workspace),

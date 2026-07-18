@@ -1,8 +1,9 @@
 import json
 import uuid
 from datetime import timedelta
+from pathlib import Path
 
-from django.http import HttpResponse, JsonResponse
+from django.http import FileResponse, HttpResponse, JsonResponse
 from django.db import IntegrityError, transaction
 from django.shortcuts import render
 from django.utils import timezone
@@ -60,12 +61,46 @@ def openai_settings(request):
 
 @require_GET
 def shell(request):
-    return render(request, "agentland/shell.html")
+    return render(request, "agentland/showcase.html", {"screen": "landing"})
 
 
 @require_GET
 def demo(request):
-    """Play the deterministic demo directly on the existing Phaser Smallville map."""
+    """Run the presentation timeline on the real inherited Phaser map and sprites."""
+    def frame(sequence, builder_location, tester_location, factory, testing, summary):
+        return {
+            "session": {"id": "demo", "mission": "Build a collaborative whiteboard with isolated rooms.", "status": "started"},
+            "hud": {"execution_mode": "DEMO MODE · SIMULATION", "runner_identity": "demo", "last_sequence": sequence},
+            "buildings": {"town_hall": "active", "code_factory": factory, "testing_facility": testing, "deployment_tower": "active" if sequence > 4 else "idle"},
+            "workers": [
+                {"id": "orchestrator", "role": "orchestrator", "status": "working", "location": "town_hall", "summary": "Planning the mission.", "task": "demo"},
+                {"id": "builder", "role": "builder", "status": "working", "location": builder_location, "summary": summary, "task": "demo"},
+                {"id": "tester", "role": "tester", "status": "working" if tester_location == "testing_facility" else "idle", "location": tester_location, "summary": "Running verification.", "task": "demo"},
+            ],
+            "tasks": [], "evidence": {"files": [], "tool": None, "test": None, "artifact": None, "blocker": None, "usage": []},
+            "activity": [{"sequence": sequence, "type": "demo.stage", "summary": summary, "actor": "demo", "task_id": "demo", "payload": {}}],
+        }
+    frames = [
+        frame(1, "town_hall", "town_hall", "idle", "idle", "Planner received the mission."),
+        frame(2, "code_factory", "town_hall", "active", "idle", "Builder is walking to Code Factory."),
+        frame(3, "code_factory", "town_hall", "active", "idle", "Builder is repairing room isolation."),
+        frame(4, "code_factory", "testing_facility", "progress", "active", "Tester is walking to Testing Facility."),
+        frame(5, "deployment_tower", "testing_facility", "complete", "passed", "Verification passed; artifact is deploying."),
+    ]
+    return render(request, "agentland/city.html", {"frames_json": json.dumps(frames).replace("</", "<\\/")})
+
+
+@require_GET
+def showcase_art(request, screen):
+    """Serve only the two user-provided local presentation references for the demo."""
+    files = {
+        "landing": Path(r"C:\Users\badug\Downloads\ChatGPT Image Jul 18, 2026, 05_19_47 PM.png"),
+        "world": Path(r"C:\Users\badug\Downloads\3660ea30-4d1b-4925-bcf8-1a19e1037857.png"),
+    }
+    asset = files.get(screen)
+    if not asset or not asset.is_file():
+        return JsonResponse({"error": "demo art is unavailable"}, status=404)
+    return FileResponse(asset.open("rb"), content_type="image/png")
     def frame(sequence, builder_location, tester_location, factory, testing, summary):
         workers = [
             {"id": "demo-orchestrator", "role": "orchestrator", "status": "working", "location": "town_hall", "summary": "Coordinating the visible demo.", "task": "demo"},
